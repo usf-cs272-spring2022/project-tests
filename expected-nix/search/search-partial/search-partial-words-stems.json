@@ -1,0 +1,82 @@
+{
+	"acknowledg correspond particular understand understood": [
+		{
+			"count": 22,
+			"score": 0.00098765,
+			"where": "input/text/stems/stem-in.txt"
+		},
+		{
+			"count": 22,
+			"score": 0.00098765,
+			"where": "input/text/stems/stem-out.txt"
+		}
+	],
+	"alpaca hidden narwhal practic": [
+		{
+			"count": 8,
+			"score": 0.00035915,
+			"where": "input/text/stems/stem-in.txt"
+		},
+		{
+			"count": 8,
+			"score": 0.00035915,
+			"where": "input/text/stems/stem-out.txt"
+		}
+	],
+	"and of the to": [
+		{
+			"count": 196,
+			"score": 0.00879910,
+			"where": "input/text/stems/stem-in.txt"
+		},
+		{
+			"count": 196,
+			"score": 0.00879910,
+			"where": "input/text/stems/stem-out.txt"
+		}
+	],
+	"b c f x": [
+		{
+			"count": 4431,
+			"score": 0.19892256,
+			"where": "input/text/stems/stem-in.txt"
+		},
+		{
+			"count": 4431,
+			"score": 0.19892256,
+			"where": "input/text/stems/stem-out.txt"
+		}
+	],
+	"ebook gutenberg": [
+	],
+	"how what when where whi who": [
+		{
+			"count": 96,
+			"score": 0.00430976,
+			"where": "input/text/stems/stem-in.txt"
+		},
+		{
+			"count": 96,
+			"score": 0.00430976,
+			"where": "input/text/stems/stem-out.txt"
+		}
+	],
+	"rfc": [
+	],
+	"woodchuck": [
+	],
+	"your yourself yourselv": [
+		{
+			"count": 6,
+			"score": 0.00026936,
+			"where": "input/text/stems/stem-in.txt"
+		},
+		{
+			"count": 6,
+			"score": 0.00026936,
+			"where": "input/text/stems/stem-out.txt"
+		}
+	],
+	"ø δ": [
+	]
+}
