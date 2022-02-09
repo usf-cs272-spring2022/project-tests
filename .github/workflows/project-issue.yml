@@ -1,0 +1,24 @@
+name: "Check project issue"
+
+on:
+  workflow_call:
+    outputs:
+      project_num:
+        description: "The project number (e.g. 1, 2, 3a, 3b, or 4)."
+        value: ${{ jobs.check_release.outputs.project_num }}
+         
+      project_ver:
+        description: "The project version (e.g. v1.0.0)."
+        value: ${{ jobs.check_release.outputs.project_ver }}
+
+jobs:
+  check_issue:
+    name: "Check project issue"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Hello world"
+        id: hello_world
+        run: |
+          echo "Hello world"
+          echo "::set-output name=project_num::1"
+          echo "::set-output name=project_ver::v1.0.0"
