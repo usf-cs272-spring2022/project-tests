@@ -13,7 +13,7 @@ on:
         
 jobs:
   check_release:
-    name: "Check if release number is correct"
+    name: "Release Number"
     runs-on: ubuntu-latest
     outputs:
       project_num: ${{ steps.hello_world.outputs.project_num }}
@@ -27,7 +27,7 @@ jobs:
           echo "::set-output name=project_ver::v1.0.0"
 
   check_compile:
-    name: "Check if source code compiles"
+    name: "Code Compiles"
     runs-on: ubuntu-latest
     needs: check_release
     steps:
@@ -35,7 +35,7 @@ jobs:
         run: echo "Hello world"
   
   check_source_warnings:
-    name: "Check if source code compiles without warnings"
+    name: "Code Warnings"
     runs-on: ubuntu-latest
     needs: check_compile
     steps:
@@ -43,7 +43,7 @@ jobs:
         run: echo "Hello world"
 
   check_javadoc_warnings:
-    name: "Check if Javadoc compiles without warnings"
+    name: "Javadoc Warnings"
     runs-on: ubuntu-latest
     needs: check_compile
     steps:
@@ -51,7 +51,7 @@ jobs:
         run: echo "Hello world"
 
   check_tests:
-    name: "Check if JUnit tests pass"
+    name: "JUnit Tests"
     runs-on: ubuntu-latest
     needs: check_compile
     steps:
@@ -59,7 +59,7 @@ jobs:
         run: echo "Hello world"
 
   check_code_style:
-    name: "Check if source code cleaned up"
+    name: "Code Style"
     runs-on: ubuntu-latest
     needs: check_compile
     steps:
