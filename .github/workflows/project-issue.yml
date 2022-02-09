@@ -13,7 +13,7 @@ on:
 
 jobs:
   check_issue:
-    name: "Check project issue"
+    name: "Issue"
     runs-on: ubuntu-latest
     steps:
       - name: "Hello world"
@@ -22,3 +22,8 @@ jobs:
           echo "Hello world"
           echo "::set-output name=project_num::1"
           echo "::set-output name=project_ver::v1.0.0"
+          echo "actor: ${{ github.actor }}"
+          echo "ref: ${{ github.ref }}"
+          echo "ref_type: ${{ github.ref_type }}"
+          echo "repository: ${{ github.repository }}"
+          echo "event: ${{ toJson(github.event) }}"
