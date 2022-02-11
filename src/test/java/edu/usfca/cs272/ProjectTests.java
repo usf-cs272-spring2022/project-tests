@@ -12,7 +12,9 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -274,6 +276,69 @@ public class ProjectTests {
 				Assertions.fail(debug);
 			}
 		});
+	}
+
+	/**
+	 * Attempts to test that multiple threads are being used in this code.
+	 *
+	 * @param action the action to run
+	 */
+	public static void testMultithreaded(Runnable action) {
+		// time the action run
+		Instant start = Instant.now();
+		action.run();
+		Duration elapsed = Duration.between(start, Instant.now());
+
+		// get how long to pause when checking for multithreading
+		Duration pause = elapsed.dividedBy(3);
+
+		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
+			// get the non-worker threads that are running this test code
+			List<String> before = activeThreads();
+
+			// start up the Driver thread
+			Thread driver = new Thread(action);
+			driver.setPriority(Thread.MAX_PRIORITY);
+			driver.start();
+
+			// pause this thread for a bit (this is where things can go wrong)
+			// this gives Driver a chance to start up its worker threads
+			Thread.sleep(pause.toMillis());
+
+			// get the threads (ideally Driver should be up and running by this point)
+			String error = "Something went wrong with the test code; see instructor. Elapsed: %d, Pause: %d";
+			Assertions.assertTrue(driver.isAlive(), error.formatted(elapsed.toMillis(), pause.toMillis()));
+			List<String> finish = activeThreads();
+
+			// wait for Driver to finish up
+			driver.join();
+
+			// try to figure out which ones are worker threads
+			List<String> workers = new ArrayList<>(finish);
+			workers.removeAll(before); // remove threads running this code
+			workers.remove(driver.getName()); // remove the driver thread
+			workers.removeIf(name -> name.startsWith("junit")); // remove junit timeout threads
+			workers.removeIf(name -> name.startsWith("ForkJoinPool")); // remove other junit threads
+
+			String debug = "\nThreads Before: %s\nThreads After: %s\nWorker Threads: %s\n";
+			Assertions.assertTrue(workers.size() > 0, debug.formatted(before, finish, workers));
+		});
+	}
+
+	/**
+	 * Returns a list of the active thread names (approximate).
+	 *
+	 * @return list of active thread names
+	 */
+	public static List<String> activeThreads() {
+		int active = Thread.activeCount(); // only an estimate
+		Thread[] threads = new Thread[active * 2]; // make sure large enough
+		Thread.enumerate(threads);
+
+		return Arrays.stream(threads)
+				.filter(t -> t != null)
+				.map(t -> t.getName())
+				.collect(Collectors.toList());
 	}
 
 	/**

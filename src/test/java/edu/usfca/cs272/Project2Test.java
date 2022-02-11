@@ -331,7 +331,6 @@ public class Project2Test extends ProjectTests {
 		 */
 		@Order(5)
 		@Test
-		@Tag("next1")
 		public void testDefaultOutput() throws IOException {
 			String[] args = { TEXT_FLAG, Project1Test.HELLO, QUERY_FLAG, SIMPLE, RESULTS_FLAG };
 
