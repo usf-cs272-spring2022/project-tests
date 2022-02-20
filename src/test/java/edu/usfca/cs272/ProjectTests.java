@@ -89,6 +89,9 @@ public class ProjectTests {
 	/** Flag to indicate whether to output the location word counts to JSON. */
 	public static final String COUNTS_FLAG = "-counts";
 
+	/** The default value for the result output path flag. */
+	public static final Path COUNTS_DEFAULT = Path.of("counts.json");
+
 	/** Flag to indicate whether to output the search results to JSON. */
 	public static final String RESULTS_FLAG = "-results";
 

@@ -1,5 +1,6 @@
 package edu.usfca.cs272;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -9,7 +10,6 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.opentest4j.AssertionFailedError;
 
 /**
@@ -54,6 +54,28 @@ public class ProjectNextTests extends ProjectTests {
 	 */
 	@Test
 	@Tag("next1")
+	public void testCountOutput() throws IOException {
+		String[] args = {
+				TEXT_FLAG, Project1Test.HELLO,
+				QUERY_FLAG, Project2Test.SIMPLE, COUNTS_FLAG };
+
+		// make sure to delete old index.json and counts.json if it exists
+		Files.deleteIfExists(INDEX_DEFAULT);
+		Files.deleteIfExists(COUNTS_DEFAULT);
+
+		testNoExceptions(args, SHORT_TIMEOUT);
+
+		// make sure a results.json was NOT created
+		Assertions.assertFalse(Files.exists(COUNTS_DEFAULT), debug);
+	}
+
+	/**
+	 * Tests that next project functionality is not present.
+	 *
+	 * @throws IOException if an IO error occurs
+	 */
+	@Test
+	@Tag("next1")
 	@Tag("next2")
 	public void testThreadBuild() throws IOException {
 		String[] args = {
@@ -86,18 +108,35 @@ public class ProjectNextTests extends ProjectTests {
 	@Tag("next3b")
 	public void testCrawlOutput() throws IOException {
 		String seed = "https://www.cs.usfca.edu/~cs272/birds/birds.html";
-
-		String filename = "counts-empty.json";
-		Path actual = ACTUAL_PATH.resolve("index-empty.json");
-		Path expected = EXPECTED_PATH.resolve("counts").resolve(filename);
+		Path actual = ACTUAL_PATH.resolve("counts-birds.json");
 
 		String[] args = {
 				HTML_FLAG, seed, MAX_FLAG, "2",
 				THREADS_FLAG, "2",
-				INDEX_FLAG, actual.toString()
+				COUNTS_FLAG, actual.toString()
 		};
 
-		Executable debug = () -> checkOutput(args, actual, expected);
-		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, debug);
+		// make sure to remove actual file before running
+		Files.deleteIfExists(actual);
+
+		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
+			try {
+				System.out.printf("%nRunning Driver %s...%n", String.join(" ", args));
+				Driver.main(args);
+			}
+			catch (Exception ignored) {
+				// exceptions are okay in this case
+				// output to console for record keeping
+				ignored.printStackTrace();
+			}
+		});
+
+		// no file output is okay in this case
+		// but, if a file was generated, check its output
+		if (Files.isRegularFile(actual)) {
+			String result = Files.readString(actual, UTF_8);
+			Assertions.assertFalse(result.contains("birds"), debug);
+			Files.deleteIfExists(actual);
+		}
 	}
 }
