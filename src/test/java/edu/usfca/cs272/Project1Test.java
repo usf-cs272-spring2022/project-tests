@@ -272,7 +272,9 @@ public class Project1Test extends ProjectTests {
 
 			// make sure a new index.json was created
 			testNoExceptions(args, SHORT_TIMEOUT);
-			Assertions.assertTrue(Files.exists(INDEX_DEFAULT));
+			Assertions.assertTrue(Files.exists(INDEX_DEFAULT),
+					errorMessage(args, INDEX_DEFAULT, INDEX_DEFAULT, 
+					"Make sure to use the default value for this flag."));
 		}
 
 		/**
@@ -290,7 +292,9 @@ public class Project1Test extends ProjectTests {
 
 			// make sure a new index.json was created
 			testNoExceptions(args, SHORT_TIMEOUT);
-			Assertions.assertTrue(Files.exists(INDEX_DEFAULT));
+			Assertions.assertTrue(Files.exists(INDEX_DEFAULT),
+					errorMessage(args, INDEX_DEFAULT, INDEX_DEFAULT, 
+					"Make sure to always produce file output if this flag exists."));
 		}
 
 		/**
