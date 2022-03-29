@@ -125,7 +125,6 @@ public class Project3aTest extends ProjectTests {
 		 */
 		@Order(7)
 		@Tag("test3a")
-		@Tag("past3b")
 		@ParameterizedTest(name = "{0} thread(s)")
 		@ValueSource(ints = { 1, 2, 4 })
 		public void testText(int threads) {
@@ -141,7 +140,6 @@ public class Project3aTest extends ProjectTests {
 		 */
 		@Order(8)
 		@Tag("test3a")
-		@Tag("past3b")
 		@Tag("past4")
 		@ParameterizedTest(name = "{0} thread(s)")
 		@ValueSource(ints = { 1, 2, 4 })
@@ -277,7 +275,6 @@ public class Project3aTest extends ProjectTests {
 		 */
 		@Order(7)
 		@Tag("test3a")
-		@Tag("past3b")
 		@Tag("past4")
 		@ParameterizedTest(name = "{0} thread(s)")
 		@ValueSource(ints = { 1, 2, 4 })
