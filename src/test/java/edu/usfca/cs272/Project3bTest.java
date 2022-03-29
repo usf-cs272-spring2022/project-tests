@@ -13,6 +13,9 @@ import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Nested;
@@ -41,7 +44,6 @@ public class Project3bTest extends ProjectTests {
 	 */
 	@Nested
 	@TestMethodOrder(OrderAnnotation.class)
-	@Tag("test3b")
 	public class A_ConsistencyTest {
 		/**
 		 * Tests that the inverted index output remains consistent when repeated.
@@ -57,6 +59,7 @@ public class Project3bTest extends ProjectTests {
 		 */
 		@Order(2)
 		@RepeatedTest(3)
+		@Tag("test3b")
 		public void testCountConsistency() {
 			new Project3aTest().new A_ThreadBuildTests().testCounts(BENCH_THREADS);
 		}
@@ -77,6 +80,7 @@ public class Project3bTest extends ProjectTests {
 		 */
 		@Order(4)
 		@RepeatedTest(3)
+		@Tag("test3b")
 		public void testPartialSearchConsistency() {
 			var test = new Project3aTest().new C_PartialSearchTests();
 			test.setup();
@@ -283,11 +287,24 @@ public class Project3bTest extends ProjectTests {
 	 * @throws IOException if an I/O error occurs
 	 */
 	public static double compare(String file, String label1, String[] args1, String label2, String[] args2, int warmRuns, int timeRuns) throws IOException {
+		Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.OFF);
+
+		// free up memory before benchmarking
+		Runtime.getRuntime().gc();
+
+		System.out.printf("%nRunning with %d processors and %.1f MB memory free.%n",
+				Runtime.getRuntime().availableProcessors(),
+				(double) Runtime.getRuntime().freeMemory() / 1048576);
+
+		// begin benchmarking
 		long[] runs1 = benchmark(args1, warmRuns, timeRuns);
 		long[] runs2 = benchmark(args2, warmRuns, timeRuns);
 
 		long total1 = 0;
 		long total2 = 0;
+
+		long min1 = Long.MAX_VALUE;
+		long min2 = Long.MAX_VALUE;
 
 		StringWriter writer = new StringWriter();
 		PrintWriter out = new PrintWriter(writer);
@@ -298,6 +315,9 @@ public class Project3bTest extends ProjectTests {
 		out.printf("%n```%n");
 		out.printf(labelFormat, "Warmup", label1, label2);
 		for (int i = 0; i < warmRuns; i++) {
+			min1 = Math.min(min1, runs1[i]);
+			min2 = Math.min(min2, runs2[i]);
+
 			out.printf(valueFormat, i + 1,
 					(double) runs1[i] / Duration.ofSeconds(1).toMillis(),
 					(double) runs2[i] / Duration.ofSeconds(1).toMillis());
@@ -308,6 +328,10 @@ public class Project3bTest extends ProjectTests {
 		for (int i = warmRuns; i < warmRuns + timeRuns; i++) {
 			total1 += runs1[i];
 			total2 += runs2[i];
+
+			min1 = Math.min(min1, runs1[i]);
+			min2 = Math.min(min2, runs2[i]);
+
 			out.printf(valueFormat, i + 1,
 					(double) runs1[i] / Duration.ofSeconds(1).toMillis(),
 					(double) runs2[i] / Duration.ofSeconds(1).toMillis());
@@ -317,9 +341,13 @@ public class Project3bTest extends ProjectTests {
 		double average2 = (double) total2 / timeRuns;
 
 		out.println();
-		out.printf("%10s:  %10.6f seconds%n", label1, average1 / Duration.ofSeconds(1).toMillis());
-		out.printf("%10s:  %10.6f seconds%n%n", label2, average2 / Duration.ofSeconds(1).toMillis());
-		out.printf("%10s: x%10.6f %n", "Speedup", average1 / average2);
+		out.printf("%10s:  %10.6f seconds average%n",   label1, average1 / Duration.ofSeconds(1).toMillis());
+		out.printf("%10s:  %10.6f seconds average%n%n", label2, average2 / Duration.ofSeconds(1).toMillis());
+		out.printf("%10s:  %10.6f seconds minimum%n",   label1, (double) min1 / Duration.ofSeconds(1).toMillis());
+		out.printf("%10s:  %10.6f seconds minimum%n%n", label2, (double) min2 / Duration.ofSeconds(1).toMillis());
+
+		double speedup = (double) min1 / min2;
+		out.printf("%10s: x%10.6f %n", "Speedup", speedup);
 		out.printf("```%n%n");
 		out.flush();
 
@@ -328,7 +356,7 @@ public class Project3bTest extends ProjectTests {
 		System.out.print(results);
 		Files.writeString(ACTUAL_PATH.resolve(file), results);
 
-		return average1 / average2;
+		return speedup;
 	}
 
 	/**
