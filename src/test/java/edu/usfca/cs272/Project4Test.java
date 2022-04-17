@@ -99,7 +99,7 @@ public class Project4Test extends ProjectTests {
 		 * @param seed the seed URL
 		 * @throws MalformedURLException if unable to create seed URL
 		 */
-		@Order(7)
+		@Order(4)
 		@ParameterizedTest
 		@ValueSource(strings = {
 				"input/rfcs/index.html",
@@ -121,10 +121,46 @@ public class Project4Test extends ProjectTests {
 		 * @throws MalformedURLException if unable to create seed URL
 		 */
 		@Test
-		@Order(8)
+		@Order(5)
 		public void testRFCs() throws MalformedURLException {
-			String seed = "https://www.cs.usfca.edu/~cs272/rfcs/";
+			String seed = "input/rfcs";
 			testIndex(REMOTE, seed, "rfcs", 7);
+		}
+
+
+		/**
+		 * Tests project output.
+		 *
+		 * @param seed the seed URL
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(4)
+		@ParameterizedTest
+		@ValueSource(strings = {
+				"input/guten/index.html",
+				"input/guten/1228-h/1228-h.htm",
+				"input/guten/1322-h/1322-h.htm",
+				"input/guten/1400-h/1400-h.htm",
+				"input/guten/1661-h/1661-h.htm",
+				"input/guten/22577-h/22577-h.htm",
+				"input/guten/2701-h/2701-h.htm",
+				"input/guten/37134-h/37134-h.htm",
+				"input/guten/50468-h/50468-h.htm"
+		})
+		public void testGutenFiles(String seed) throws MalformedURLException {
+			testIndex(REMOTE, seed, "guten", 1);
+		}
+
+		/**
+		 * Tests project output.
+		 *
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(5)
+		public void testGuten() throws MalformedURLException {
+			String seed = "input/guten/";
+			testIndex(REMOTE, seed, "guten", 7);
 		}
 	}
 
@@ -177,7 +213,15 @@ public class Project4Test extends ProjectTests {
 	public static String getTestName(String link) {
 		String[] paths = link.split("/");
 		String last = paths[paths.length - 1];
-		String[] parts = last.split("[.#-]");
-		return parts[0];
+
+		String[] names = last.split("[.#-]");
+		String name = names[0];
+
+		// treat index files as special case
+		if (name.equalsIgnoreCase("index")) {
+			return paths[paths.length - 2] + "-" + name;
+		}
+
+		return name;
 	}
 }
