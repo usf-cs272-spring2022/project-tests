@@ -111,7 +111,7 @@ public class ProjectNextTests extends ProjectTests {
 		Path actual = ACTUAL_PATH.resolve("counts-birds.json");
 
 		String[] args = {
-				HTML_FLAG, seed, MAX_FLAG, "2",
+				HTML_FLAG, seed, MAX_FLAG, "1",
 				THREADS_FLAG, "2",
 				COUNTS_FLAG, actual.toString()
 		};
