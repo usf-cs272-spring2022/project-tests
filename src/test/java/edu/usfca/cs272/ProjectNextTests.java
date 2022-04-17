@@ -107,7 +107,7 @@ public class ProjectNextTests extends ProjectTests {
 	@Tag("next3a")
 	@Tag("next3b")
 	public void testCrawlOutput() throws IOException {
-		String seed = "https://www.cs.usfca.edu/~cs272/birds/birds.html";
+		String seed = "https://usf-cs272-spring2022.github.io/project-web/input/birds/index.html";
 		Path actual = ACTUAL_PATH.resolve("counts-birds.json");
 
 		String[] args = {
