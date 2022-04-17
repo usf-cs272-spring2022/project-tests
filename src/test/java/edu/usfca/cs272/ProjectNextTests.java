@@ -139,4 +139,16 @@ public class ProjectNextTests extends ProjectTests {
 			Files.deleteIfExists(actual);
 		}
 	}
+
+	/**
+	 * Test placeholder for last project (no "next" test functionality). Only
+	 * tests that valid flag/value pairs do not throw an exception.
+	 */
+	@Test
+	@Tag("next4")
+	public void testLastProject() {
+		String seed = "https://usf-cs272-spring2022.github.io/project-web/input/birds/index.html";
+		String[] args = { HTML_FLAG, seed, MAX_FLAG, "2", THREADS_FLAG, "2" };
+		testNoExceptions(args, LONG_TIMEOUT);
+	}
 }
