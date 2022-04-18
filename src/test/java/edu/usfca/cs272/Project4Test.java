@@ -9,6 +9,7 @@ import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,7 +45,8 @@ public class Project4Test extends ProjectTests {
 	 */
 	@Nested
 	@TestMethodOrder(OrderAnnotation.class)
-	public class A_IndexRemoteTests {
+	public class A_SimpleTests {
+
 		/**
 		 * Tests project output.
 		 *
@@ -76,7 +78,8 @@ public class Project4Test extends ProjectTests {
 		 */
 		@Test
 		@Order(2)
-		public void testSimple() throws MalformedURLException {
+		@Tag("test4")
+		public void testSimpleIndex() throws MalformedURLException {
 			String seed = "input/simple/";
 			testIndex(REMOTE, seed, "simple", 15);
 		}
@@ -87,12 +90,44 @@ public class Project4Test extends ProjectTests {
 		 * @throws MalformedURLException if unable to create seed URL
 		 */
 		@Test
+		@Order(1)
+		public void testSimpleCounts() throws MalformedURLException {
+			String seed = "input/simple/";
+			testCounts(REMOTE, seed, 15);
+		}
+
+		/**
+		 * Tests project output.
+		 *
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
 		@Order(3)
-		public void testBirds() throws MalformedURLException {
+		public void testBirdsIndex() throws MalformedURLException {
 			String seed = "input/birds/";
 			testIndex(REMOTE, seed, "simple", 50);
 		}
 
+		/**
+		 * Tests project output.
+		 *
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(2)
+		@Tag("test4")
+		public void testBirdsCounts() throws MalformedURLException {
+			String seed = "input/birds/";
+			testCounts(REMOTE, seed, 50);
+		}
+	}
+
+	/**
+	 * Tests the output of this project.
+	 */
+	@Nested
+	@TestMethodOrder(OrderAnnotation.class)
+	public class A_TextTests {
 		/**
 		 * Tests project output.
 		 *
@@ -111,7 +146,7 @@ public class Project4Test extends ProjectTests {
 				"input/rfcs/rfc6838.html",
 				"input/rfcs/rfc7231.html"
 		})
-		public void testRFCFiles(String seed) throws MalformedURLException {
+		public void testRfcFiles(String seed) throws MalformedURLException {
 			testIndex(REMOTE, seed, "rfcs", 1);
 		}
 
@@ -122,11 +157,22 @@ public class Project4Test extends ProjectTests {
 		 */
 		@Test
 		@Order(5)
-		public void testRFCs() throws MalformedURLException {
-			String seed = "input/rfcs";
+		public void testRfcIndex() throws MalformedURLException {
+			String seed = "input/rfcs/";
 			testIndex(REMOTE, seed, "rfcs", 7);
 		}
 
+		/**
+		 * Tests project output.
+		 *
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(3)
+		public void testRfcCounts() throws MalformedURLException {
+			String seed = "input/rfcs/";
+			testCounts(REMOTE, seed, 7);
+		}
 
 		/**
 		 * Tests project output.
@@ -134,7 +180,7 @@ public class Project4Test extends ProjectTests {
 		 * @param seed the seed URL
 		 * @throws MalformedURLException if unable to create seed URL
 		 */
-		@Order(4)
+		@Order(6)
 		@ParameterizedTest
 		@ValueSource(strings = {
 				"input/guten/index.html",
@@ -157,10 +203,74 @@ public class Project4Test extends ProjectTests {
 		 * @throws MalformedURLException if unable to create seed URL
 		 */
 		@Test
-		@Order(5)
-		public void testGuten() throws MalformedURLException {
+		@Order(7)
+		public void testGutenIndex() throws MalformedURLException {
 			String seed = "input/guten/";
 			testIndex(REMOTE, seed, "guten", 7);
+		}
+
+		/**
+		 * Tests project output.
+		 *
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(4)
+		public void testGutenCounts() throws MalformedURLException {
+			String seed = "input/guten/";
+			testCounts(REMOTE, seed, 7);
+		}
+	}
+
+	/**
+	 * Tests the output of this project.
+	 */
+	@Nested
+	@TestMethodOrder(OrderAnnotation.class)
+	public class C_JavaTests {
+		/**
+		 * Tests project output.
+		 *
+		 * @param seed the seed URL
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(8)
+		@ParameterizedTest
+		@ValueSource(strings = {
+				"docs/api/java.base/java/util/AbstractCollection.html",
+				"docs/api/java.compiler/javax/lang/model/SourceVersion.html",
+				"docs/api/java.desktop/java/awt/desktop/AboutHandler.html",
+				"docs/api/java.prefs/java/util/prefs/AbstractPreferences.html",
+				"docs/api/overview-tree.html",
+				"docs/api/allclasses-index.html"
+		})
+		public void testJavaFiles(String seed) throws MalformedURLException {
+			testIndex(REMOTE, seed, "java", 1);
+		}
+
+		/**
+		 * Tests project output.
+		 *
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(9)
+		@Tag("test4")
+		public void testJavaIndex() throws MalformedURLException {
+			String seed = "docs/api/allclasses-index.html";
+			testIndex(REMOTE, seed, "java", 50);
+		}
+
+		/**
+		 * Tests project output.
+		 *
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(5)
+		public void testJavaCounts() throws MalformedURLException {
+			String seed = "docs/api/allclasses-index.html";
+			testCounts(REMOTE, seed, 50);
 		}
 	}
 
@@ -186,21 +296,52 @@ public class Project4Test extends ProjectTests {
 	 * @throws MalformedURLException if unable to create seed URL
 	 */
 	public static void testIndex(String absolute, String relative, String subdir, int limit) throws MalformedURLException {
-		String name = getTestName(relative);
-		String filename = String.format("index-%s.json", name);
+		String name = getTestName(relative, limit);
 
-		Path actual = ACTUAL_PATH.resolve(filename);
-		Path expected = EXPECTED_CRAWL.resolve("index-" + subdir).resolve(filename);
+		String actualName = String.format("index-%s-%s.json", subdir, name);
+		Path actualPath = ACTUAL_PATH.resolve(actualName);
+
+		String expectedName = String.format("index-%s.json", name);
+		Path expectedPath = EXPECTED_CRAWL.resolve("index-" + subdir).resolve(expectedName);
 
 		URL base = new URL(absolute);
 		URL url = new URL(base, relative);
 
 		String[] args = { HTML_FLAG, url.toString(), MAX_FLAG, Integer.toString(limit),
 				THREADS_FLAG, Integer.toString(THREADS_DEFAULT), INDEX_FLAG,
-				actual.normalize().toString() };
+				actualPath.normalize().toString() };
 
 		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
-			ProjectTests.checkOutput(args, actual, expected);
+			ProjectTests.checkOutput(args, actualPath, expectedPath);
+		});
+	}
+
+	/**
+	 * Runs an individual test of the web crawler inverted index output.
+	 *
+	 * @param absolute the base URL in absolute form
+	 * @param relative the URL to fetch from the base in relative form
+	 * @param limit the crawl limit to use
+	 * @throws MalformedURLException if unable to create seed URL
+	 */
+	public static void testCounts(String absolute, String relative, int limit) throws MalformedURLException {
+		String name = getTestName(relative, limit);
+
+		String actualName = String.format("counts-%s.json", name);
+		Path actualPath = ACTUAL_PATH.resolve(actualName);
+
+		String expectedName = String.format("counts-%s.json", name);
+		Path expectedPath = EXPECTED_CRAWL.resolve("counts").resolve(expectedName);
+
+		URL base = new URL(absolute);
+		URL url = new URL(base, relative);
+
+		String[] args = { HTML_FLAG, url.toString(), MAX_FLAG, Integer.toString(limit),
+				THREADS_FLAG, Integer.toString(THREADS_DEFAULT), COUNTS_FLAG,
+				actualPath.normalize().toString() };
+
+		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
+			ProjectTests.checkOutput(args, actualPath, expectedPath);
 		});
 	}
 
@@ -208,20 +349,16 @@ public class Project4Test extends ProjectTests {
 	 * Gets the name to use for test output files based on the link.
 	 *
 	 * @param link the link to test
+	 * @param limit the limit of the test
 	 * @return the name to use for test output
 	 */
-	public static String getTestName(String link) {
+	public static String getTestName(String link, int limit) {
 		String[] paths = link.split("/");
 		String last = paths[paths.length - 1];
 
 		String[] names = last.split("[.#-]");
 		String name = names[0];
 
-		// treat index files as special case
-		if (name.equalsIgnoreCase("index")) {
-			return paths[paths.length - 2] + "-" + name;
-		}
-
-		return name;
+		return limit > 1 ? name + "-" + limit : name;
 	}
 }
