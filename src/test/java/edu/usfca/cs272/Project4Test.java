@@ -5,7 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
@@ -372,7 +376,65 @@ public class Project4Test extends ProjectTests {
 	@Tag("test4")
 	@TestMethodOrder(OrderAnnotation.class)
 	public class G_StargateTests {
-		// TODO Pending
+		/**
+		 * Tests project output.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(1)
+		@Test
+		public void testRecurseIndex() throws MalformedURLException {
+			testIndex(STARGATE, "recurse/link01.html", "stargate", 100);
+		}
+
+		/**
+		 * Tests project output.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(2)
+		@Test
+		public void testRecurseCounts() throws MalformedURLException {
+			testCounts(STARGATE, "recurse/link01.html", "stargate", 100);
+		}
+
+		/**
+		 * Tests project output.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(3)
+		@Test
+		public void testRedirectIndex() throws MalformedURLException {
+			testIndex(STARGATE, "redirect/index.html", "stargate", 10);
+		}
+
+		/**
+		 * Tests project output.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(4)
+		@Test
+		public void testRedirectCounts() throws MalformedURLException {
+			testCounts(STARGATE, "redirect/index.html", "stargate", 10);
+		}
+
+		/**
+		 * Tests project output.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(5)
+		@Test
+		public void testLocalIndex() throws MalformedURLException {
+			testIndex(STARGATE, "local.html", "stargate", 200);
+		}
+
+		/**
+		 * Tests project output.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(6)
+		@Test
+		public void testLocalCounts() throws MalformedURLException {
+			testCounts(STARGATE, "local.html", "stargate", 200);
+		}
 	}
 
 	/**
@@ -382,44 +444,141 @@ public class Project4Test extends ProjectTests {
 	@Tag("test4")
 	@TestMethodOrder(OrderAnnotation.class)
 	public class H_ExceptionTests {
+		/** Default arguments used by the exception tests. */
+		public static final Map<String, String> DEFAULT_INPUT = Map.of(
+				HTML_FLAG, REMOTE + "input/birds/falcon.html",
+				MAX_FLAG, "1",
+				THREADS_FLAG, Integer.toString(BENCH_THREADS),
+				QUERY_FLAG, QUERY_PATH.resolve("letters.txt").toString(),
+				EXACT_FLAG, ""
+		);
+
+		/** Default arguments used by the exception tests. */
+		public static final Map<String, String> DEFAULT_OUTPUT = Map.of(
+				INDEX_FLAG, ACTUAL_PATH.resolve("crawl-index.json").toString(),
+				RESULTS_FLAG, ACTUAL_PATH.resolve("crawl-results.json").toString(),
+				COUNTS_FLAG, ACTUAL_PATH.resolve("crawl-counts.json").toString()
+		);
+
 		/**
 		 * Tests that no exceptions are thrown.
 		 * @throws Exception if something goes wrong
 		 */
+		@Test
 		public void testMissingLimit() throws Exception {
+			Map<String, String> map = new HashMap<>(DEFAULT_INPUT);
+			map.remove(MAX_FLAG);
+			map.put(COUNTS_FLAG, DEFAULT_OUTPUT.get(COUNTS_FLAG));
 
+			String[] args = map.entrySet().stream()
+					.flatMap(entry -> Stream.of(entry.getKey(), entry.getValue()))
+					.filter(Predicate.not(String::isBlank))
+					.toArray(String[]::new);
+
+			Files.deleteIfExists(Path.of(DEFAULT_OUTPUT.get(COUNTS_FLAG)));
+			testNoExceptions(args, SHORT_TIMEOUT);
+			Assertions.assertTrue(Files.exists(Path.of(DEFAULT_OUTPUT.get(COUNTS_FLAG))));
 		}
 
 		/**
 		 * Tests that no exceptions are thrown.
 		 * @throws Exception if something goes wrong
 		 */
+		@Test
 		public void testInvalidLimit() throws Exception {
+			Map<String, String> map = new HashMap<>(DEFAULT_INPUT);
+			map.replace(MAX_FLAG, "-12");
+			map.put(COUNTS_FLAG, DEFAULT_OUTPUT.get(COUNTS_FLAG));
 
+			String[] args = map.entrySet().stream()
+					.flatMap(entry -> Stream.of(entry.getKey(), entry.getValue()))
+					.filter(Predicate.not(String::isBlank))
+					.toArray(String[]::new);
+
+			Files.deleteIfExists(Path.of(DEFAULT_OUTPUT.get(COUNTS_FLAG)));
+			testNoExceptions(args, SHORT_TIMEOUT);
+			Assertions.assertTrue(Files.exists(Path.of(DEFAULT_OUTPUT.get(COUNTS_FLAG))));
 		}
 
 		/**
 		 * Tests that no exceptions are thrown.
 		 * @throws Exception if something goes wrong
 		 */
+		@Test
 		public void testNoThreads() throws Exception {
+			Map<String, String> map = new HashMap<>(DEFAULT_INPUT);
+			map.remove(THREADS_FLAG);
+			map.put(COUNTS_FLAG, DEFAULT_OUTPUT.get(COUNTS_FLAG));
 
+			String[] args = map.entrySet().stream()
+					.flatMap(entry -> Stream.of(entry.getKey(), entry.getValue()))
+					.filter(Predicate.not(String::isBlank))
+					.toArray(String[]::new);
+
+			Files.deleteIfExists(Path.of(DEFAULT_OUTPUT.get(COUNTS_FLAG)));
+			testNoExceptions(args, SHORT_TIMEOUT);
+			Assertions.assertTrue(Files.exists(Path.of(DEFAULT_OUTPUT.get(COUNTS_FLAG))));
 		}
 
 		/**
 		 * Tests that no exceptions are thrown.
 		 * @throws Exception if something goes wrong
 		 */
+		@Test
 		public void testMissingSeedValue() throws Exception {
+			Map<String, String> map = new HashMap<>(DEFAULT_INPUT);
+			map.replace(HTML_FLAG, "");
+			map.put(COUNTS_FLAG, DEFAULT_OUTPUT.get(COUNTS_FLAG));
 
+			String[] args = map.entrySet().stream()
+					.flatMap(entry -> Stream.of(entry.getKey(), entry.getValue()))
+					.filter(Predicate.not(String::isBlank))
+					.toArray(String[]::new);
+
+			testNoExceptions(args, SHORT_TIMEOUT);
 		}
 
 		/**
 		 * Tests that no exceptions are thrown.
 		 * @throws Exception if something goes wrong
 		 */
+		@Test
 		public void testNoOutput() throws Exception {
+			Map<String, String> map = new HashMap<>(DEFAULT_INPUT);
 
+			String[] args = map.entrySet().stream()
+					.flatMap(entry -> Stream.of(entry.getKey(), entry.getValue()))
+					.filter(Predicate.not(String::isBlank))
+					.toArray(String[]::new);
+
+			testNoExceptions(args, SHORT_TIMEOUT);
+		}
+
+		/**
+		 * Tests that no exceptions are thrown.
+		 * @throws Exception if something goes wrong
+		 */
+		@Test
+		public void testAllOutput() throws Exception {
+			Map<String, String> map = new HashMap<>(DEFAULT_INPUT);
+			map.putAll(DEFAULT_OUTPUT);
+
+			String[] args = map.entrySet().stream()
+					.flatMap(entry -> Stream.of(entry.getKey(), entry.getValue()))
+					.filter(Predicate.not(String::isBlank))
+					.toArray(String[]::new);
+
+			Files.deleteIfExists(Path.of(DEFAULT_OUTPUT.get(INDEX_FLAG)));
+			Files.deleteIfExists(Path.of(DEFAULT_OUTPUT.get(COUNTS_FLAG)));
+			Files.deleteIfExists(Path.of(DEFAULT_OUTPUT.get(RESULTS_FLAG)));
+
+			testNoExceptions(args, SHORT_TIMEOUT);
+
+			Assertions.assertAll(
+					() -> Assertions.assertTrue(Files.exists(Path.of(DEFAULT_OUTPUT.get(INDEX_FLAG)))),
+					() -> Assertions.assertTrue(Files.exists(Path.of(DEFAULT_OUTPUT.get(COUNTS_FLAG)))),
+					() -> Assertions.assertTrue(Files.exists(Path.of(DEFAULT_OUTPUT.get(RESULTS_FLAG))))
+			);
 		}
 	}
 
