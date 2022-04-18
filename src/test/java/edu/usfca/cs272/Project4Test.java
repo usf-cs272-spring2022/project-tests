@@ -1,5 +1,8 @@
 package edu.usfca.cs272;
 
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -11,8 +14,11 @@ import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -159,6 +165,7 @@ public class Project4Test extends ProjectTests {
 			baseLimit = 50;
 		}
 
+		/** The individual web pages to test. */
 		public static Stream<String> getFiles() {
 			return Stream.of(
 					"index.html",
@@ -184,6 +191,7 @@ public class Project4Test extends ProjectTests {
 			baseLimit = 7;
 		}
 
+		/** The individual web pages to test. */
 		public static Stream<String> getFiles() {
 			return Stream.of(
 				"index.html",
@@ -214,6 +222,7 @@ public class Project4Test extends ProjectTests {
 			baseLimit = 7;
 		}
 
+		/** The individual web pages to test. */
 		public static Stream<String> getFiles() {
 			return Stream.of(
 				"index.html",
@@ -245,6 +254,7 @@ public class Project4Test extends ProjectTests {
 			baseLimit = 50;
 		}
 
+		/** The individual web pages to test. */
 		public static Stream<String> getFiles() {
 			return Stream.of(
 				"java.base/java/util/AbstractCollection.html",
@@ -263,6 +273,219 @@ public class Project4Test extends ProjectTests {
 		public void testCrawlFiles(String file) throws MalformedURLException {
 			baseResource = "docs/api/"; // reset for file cases
 			super.testCrawlFiles(file);
+		}
+	}
+
+	/**
+	 * These are the same tests as above, except tagged so they are picked up
+	 * by GitHub Actions when testing remotely. There is no need to run tests
+	 * tests locally!
+	 */
+	@Nested
+	@EnabledIfEnvironmentVariable(named = "USER_PATH", matches = "project-main")
+	@Tag("test4")
+	@TestMethodOrder(OrderAnnotation.class)
+	public class F_RemoteTests {
+		/**
+		 * Runs one test from the simple test cases.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(1)
+		@Tag("test4")
+		public void testSimple() throws MalformedURLException {
+			var testClass = new A_SimpleTests();
+			testClass.setup();
+			testClass.testCrawlIndex();
+		}
+
+		/**
+		 * Runs one test from the birds test cases.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(2)
+		@Tag("test4")
+		public void testBirds() throws MalformedURLException {
+			var testClass = new B_BirdsTests();
+			testClass.setup();
+			testClass.testCrawlCounts();
+		}
+
+		/**
+		 * Runs one test from the RFCs test cases.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(3)
+		@Tag("test4")
+		public void testRfcs() throws MalformedURLException {
+			var testClass = new C_RfcTests();
+			testClass.setup();
+			testClass.testCrawlResults(true);
+		}
+
+		/**
+		 * Runs one test from the guten test cases.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(4)
+		@Tag("test4")
+		public void testGuten() throws MalformedURLException {
+			var testClass = new D_GutenTests();
+			testClass.setup();
+			testClass.testCrawlResults(false);
+		}
+
+		/**
+		 * Runs one test from the Java test cases.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(5)
+		@Tag("test4")
+		public void testJavaCounts() throws MalformedURLException {
+			var testClass = new E_JavaTests();
+			testClass.setup();
+			testClass.testCrawlCounts();
+		}
+
+		/**
+		 * Runs one test from the Java test cases.
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Test
+		@Order(6)
+		@Tag("test4")
+		public void testJavaPartial() throws MalformedURLException {
+			var testClass = new E_JavaTests();
+			testClass.setup();
+			testClass.testCrawlResults(false);
+		}
+	}
+
+	/**
+	 * Tests the output of this project.
+	 */
+	@Nested
+	@Tag("test4")
+	@TestMethodOrder(OrderAnnotation.class)
+	public class G_StargateTests {
+		// TODO Pending
+	}
+
+	/**
+	 * Tests the output of this project.
+	 */
+	@Nested
+	@Tag("test4")
+	@TestMethodOrder(OrderAnnotation.class)
+	public class H_ExceptionTests {
+		/**
+		 * Tests that no exceptions are thrown.
+		 * @throws Exception if something goes wrong
+		 */
+		public void testMissingLimit() throws Exception {
+
+		}
+
+		/**
+		 * Tests that no exceptions are thrown.
+		 * @throws Exception if something goes wrong
+		 */
+		public void testInvalidLimit() throws Exception {
+
+		}
+
+		/**
+		 * Tests that no exceptions are thrown.
+		 * @throws Exception if something goes wrong
+		 */
+		public void testNoThreads() throws Exception {
+
+		}
+
+		/**
+		 * Tests that no exceptions are thrown.
+		 * @throws Exception if something goes wrong
+		 */
+		public void testMissingSeedValue() throws Exception {
+
+		}
+
+		/**
+		 * Tests that no exceptions are thrown.
+		 * @throws Exception if something goes wrong
+		 */
+		public void testNoOutput() throws Exception {
+
+		}
+	}
+
+	/**
+	 * Tests the output of this project.
+	 */
+	@Nested
+	@Tag("test4")
+	@TestMethodOrder(OrderAnnotation.class)
+	public class I_RuntimeTests {
+		/**
+		 * Tests that the inverted index output remains consistent when repeated.
+		 *
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(1)
+		@RepeatedTest(3)
+		public void testIndexConsistency() throws MalformedURLException {
+			// free up memory before re-running
+			Runtime.getRuntime().gc();
+
+			// run test
+			var testClass = new E_JavaTests();
+			testClass.setup();
+			testClass.testCrawlCounts();
+		}
+
+		/**
+		 * Tests that building the inverted index with {@link #BENCH_THREADS} is
+		 * faster than building with only 1 thread.
+		 *
+		 * @throws MalformedURLException if unable to create seed URL
+		 */
+		@Order(2)
+		@Test
+		public void testIndexMultithreaded() throws MalformedURLException {
+			URL base = new URL(REMOTE);
+			URL url = new URL(base, "docs/api/allclasses-index.html");
+
+			int limit = 30; // smaller to speed up benchmark
+
+			String[] args1 = {
+					HTML_FLAG, url.toString(),
+					MAX_FLAG, Integer.toString(limit),
+					THREADS_FLAG, String.valueOf(1) };
+
+			String[] args2 = {
+					HTML_FLAG, url.toString(),
+					MAX_FLAG, Integer.toString(limit),
+					THREADS_FLAG, String.valueOf(BENCH_THREADS) };
+
+			System.out.println();
+			System.out.printf("### Testing Build 1 vs %d Workers...%n", BENCH_THREADS);
+
+			// make sure code runs without exceptions before testing
+			testNoExceptions(args2, SHORT_TIMEOUT);
+
+			// then test the timing
+			assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
+				double result = Project3bTest.compare("bench-crawl-multi.txt", "1 Worker", args1,
+						String.valueOf(BENCH_THREADS) + " Workers", args2);
+
+				assertTrue(result >= 1.5, () -> String.format(
+						"%d workers has a %.2fx speedup (less than the 1.1x required) compareed to %s.",
+						BENCH_THREADS, result, "1 worker"));
+			});
 		}
 	}
 
