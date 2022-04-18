@@ -296,7 +296,8 @@ public class Project4Test extends ProjectTests {
 	 * @throws MalformedURLException if unable to create seed URL
 	 */
 	public static void testIndex(String absolute, String relative, String subdir, int limit) throws MalformedURLException {
-		String name = getTestName(relative, limit);
+		String name = getTestName(relative);
+		name = limit > 1 ? name + "-" + limit : name;
 
 		String actualName = String.format("index-%s-%s.json", subdir, name);
 		Path actualPath = ACTUAL_PATH.resolve(actualName);
@@ -307,9 +308,12 @@ public class Project4Test extends ProjectTests {
 		URL base = new URL(absolute);
 		URL url = new URL(base, relative);
 
-		String[] args = { HTML_FLAG, url.toString(), MAX_FLAG, Integer.toString(limit),
-				THREADS_FLAG, Integer.toString(THREADS_DEFAULT), INDEX_FLAG,
-				actualPath.normalize().toString() };
+		String[] args = {
+				HTML_FLAG, url.toString(),
+				MAX_FLAG, Integer.toString(limit),
+				THREADS_FLAG, Integer.toString(THREADS_DEFAULT),
+				INDEX_FLAG, actualPath.normalize().toString()
+		};
 
 		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
 			ProjectTests.checkOutput(args, actualPath, expectedPath);
@@ -325,7 +329,8 @@ public class Project4Test extends ProjectTests {
 	 * @throws MalformedURLException if unable to create seed URL
 	 */
 	public static void testCounts(String absolute, String relative, int limit) throws MalformedURLException {
-		String name = getTestName(relative, limit);
+		String name = getTestName(relative);
+		name = limit > 1 ? name + "-" + limit : name;
 
 		String actualName = String.format("counts-%s.json", name);
 		Path actualPath = ACTUAL_PATH.resolve(actualName);
@@ -336,9 +341,49 @@ public class Project4Test extends ProjectTests {
 		URL base = new URL(absolute);
 		URL url = new URL(base, relative);
 
-		String[] args = { HTML_FLAG, url.toString(), MAX_FLAG, Integer.toString(limit),
-				THREADS_FLAG, Integer.toString(THREADS_DEFAULT), COUNTS_FLAG,
-				actualPath.normalize().toString() };
+		String[] args = {
+				HTML_FLAG, url.toString(),
+				MAX_FLAG, Integer.toString(limit),
+				THREADS_FLAG, Integer.toString(THREADS_DEFAULT),
+				COUNTS_FLAG, actualPath.normalize().toString()
+		};
+
+		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
+			ProjectTests.checkOutput(args, actualPath, expectedPath);
+		});
+	}
+
+	/**
+	 * Runs an individual test of the web crawler search output.
+	 *
+	 * @param absolute the base URL in absolute form
+	 * @param relative the URL to fetch from the base in relative form
+	 * @param limit the crawl limit to use
+	 * @param exact whether it is an exact search
+	 * @param query the query file to use
+	 * @throws MalformedURLException if unable to create seed URL
+	 */
+	public static void testSearch(String absolute, String relative, int limit,
+			boolean exact, String query) throws MalformedURLException {
+		String type = exact ? "exact" : "partial";
+		String name = getTestName(relative) + "-" + query.split("[.]")[0];
+
+		String actualName = String.format("results-%s-%s.json", type, name);
+		Path actualPath = ACTUAL_PATH.resolve(actualName);
+
+		String expectedName = String.format("results-%s.json", name);
+		Path expectedPath = EXPECTED_CRAWL.resolve("search-" + type).resolve(expectedName);
+
+		URL base = new URL(absolute);
+		URL url = new URL(base, relative);
+
+		String[] args = {
+				HTML_FLAG, url.toString(),
+				MAX_FLAG, Integer.toString(limit),
+				THREADS_FLAG, Integer.toString(THREADS_DEFAULT),
+				QUERY_FLAG, QUERY_PATH.resolve(query).toString(),
+				RESULTS_FLAG, actualPath.normalize().toString()
+		};
 
 		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
 			ProjectTests.checkOutput(args, actualPath, expectedPath);
@@ -349,16 +394,15 @@ public class Project4Test extends ProjectTests {
 	 * Gets the name to use for test output files based on the link.
 	 *
 	 * @param link the link to test
-	 * @param limit the limit of the test
 	 * @return the name to use for test output
 	 */
-	public static String getTestName(String link, int limit) {
+	public static String getTestName(String link) {
 		String[] paths = link.split("/");
 		String last = paths[paths.length - 1];
 
 		String[] names = last.split("[.#-]");
 		String name = names[0];
 
-		return limit > 1 ? name + "-" + limit : name;
+		return name;
 	}
 }
