@@ -3,16 +3,18 @@ package edu.usfca.cs272;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
@@ -46,79 +48,98 @@ public class Project4Test extends ProjectTests {
 	@Nested
 	@TestMethodOrder(OrderAnnotation.class)
 	public class A_SimpleTests {
+		/** The base URL to use for all tests. */
+		public String baseUrl;
+
+		/** The base resource to use for all tests. */
+		public String baseResource;
+
+		/** The base subdir to use for all tests. */
+		public String baseSubdir;
+
+		/** The base query file to use for all tests. */
+		public String baseQuery;
+
+		/** The base limit to use for all tests. */
+		public int baseLimit;
+
+		/** Setup for the tests in this class. */
+		@BeforeEach
+		public void setup() {
+			baseUrl = REMOTE;
+			baseResource = "input/simple/";
+			baseSubdir = "simple";
+			baseQuery = "simple.txt";
+			baseLimit = 15;
+		}
 
 		/**
-		 * Tests project output.
+		 * The individual files to test.
 		 *
-		 * @param seed the seed URL
+		 * @return the files to test
+		 */
+		public static Stream<String> getFiles() {
+			return Stream.of(
+					"index.html",
+					"a/b/c/subdir.html",
+					"capital_extension.HTML",
+					"empty.html",
+					"hello.html",
+					"mixed_case.htm",
+					"position.html",
+					"stems.html",
+					"symbols.html",
+					"dir.txt"
+			);
+		}
+
+		/**
+		 * Tests the inverted index output for individual web pages with a crawl
+		 * limit of only 1 web page.
+		 *
+		 * @param file the name or path to the file
 		 * @throws MalformedURLException if unable to create seed URL
 		 */
 		@Order(1)
 		@ParameterizedTest
-		@ValueSource(strings = {
-				"input/simple/index.html",
-				"input/simple/a/b/c/subdir.html",
-				"input/simple/capital_extension.HTML",
-				"input/simple/empty.html",
-				"input/simple/hello.html",
-				"input/simple/mixed_case.htm",
-				"input/simple/position.html",
-				"input/simple/stems.html",
-				"input/simple/symbols.html",
-				"input/simple/dir.txt"
-		})
-		public void testSimpleFiles(String seed) throws MalformedURLException {
-			testIndex(REMOTE, seed, "simple", 1);
+		@MethodSource("getFiles")
+		public void testCrawlFiles(String file) throws MalformedURLException {
+			testIndex(baseUrl, baseResource + file, baseSubdir, 1);
 		}
 
 		/**
-		 * Tests project output.
+		 * Tests the inverted index output with a crawl limit greater than 1.
 		 *
 		 * @throws MalformedURLException if unable to create seed URL
 		 */
 		@Test
 		@Order(2)
-		@Tag("test4")
-		public void testSimpleIndex() throws MalformedURLException {
-			String seed = "input/simple/";
-			testIndex(REMOTE, seed, "simple", 15);
+		public void testCrawlIndex() throws MalformedURLException {
+			testIndex(baseUrl, baseResource, baseSubdir, baseLimit);
 		}
 
 		/**
-		 * Tests project output.
-		 *
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Test
-		@Order(1)
-		public void testSimpleCounts() throws MalformedURLException {
-			String seed = "input/simple/";
-			testCounts(REMOTE, seed, 15);
-		}
-
-		/**
-		 * Tests project output.
+		 * Tests the inverted index count output.
 		 *
 		 * @throws MalformedURLException if unable to create seed URL
 		 */
 		@Test
 		@Order(3)
-		public void testBirdsIndex() throws MalformedURLException {
-			String seed = "input/birds/";
-			testIndex(REMOTE, seed, "simple", 50);
+		public void testCrawlCounts() throws MalformedURLException {
+			testCounts(baseUrl, baseResource, baseSubdir, baseLimit);
 		}
 
 		/**
-		 * Tests project output.
+		 * Tests the search results output.
 		 *
+		 * @param exact whether to conduct exact or partial search
 		 * @throws MalformedURLException if unable to create seed URL
 		 */
-		@Test
-		@Order(2)
-		@Tag("test4")
-		public void testBirdsCounts() throws MalformedURLException {
-			String seed = "input/birds/";
-			testCounts(REMOTE, seed, 50);
+		@Order(4)
+		@ParameterizedTest
+		@ValueSource(booleans = { true, false })
+		public void testCrawlResults(boolean exact) throws MalformedURLException {
+			testSearch(baseUrl, baseResource, baseSubdir, baseLimit, exact, baseQuery);
 		}
 	}
 
@@ -127,98 +148,23 @@ public class Project4Test extends ProjectTests {
 	 */
 	@Nested
 	@TestMethodOrder(OrderAnnotation.class)
-	public class A_TextTests {
-		/**
-		 * Tests project output.
-		 *
-		 * @param seed the seed URL
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Order(4)
-		@ParameterizedTest
-		@ValueSource(strings = {
-				"input/rfcs/index.html",
-				"input/rfcs/rfc3629.html",
-				"input/rfcs/rfc475.html",
-				"input/rfcs/rfc5646.html",
-				"input/rfcs/rfc6797.html",
-				"input/rfcs/rfc6805.html",
-				"input/rfcs/rfc6838.html",
-				"input/rfcs/rfc7231.html"
-		})
-		public void testRfcFiles(String seed) throws MalformedURLException {
-			testIndex(REMOTE, seed, "rfcs", 1);
+	public class B_BirdsTests extends A_SimpleTests {
+		@Override
+		@BeforeEach
+		public void setup() {
+			baseUrl = REMOTE;
+			baseResource = "input/birds/";
+			baseSubdir = "birds";
+			baseQuery = "letters.txt";
+			baseLimit = 50;
 		}
 
-		/**
-		 * Tests project output.
-		 *
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Test
-		@Order(5)
-		public void testRfcIndex() throws MalformedURLException {
-			String seed = "input/rfcs/";
-			testIndex(REMOTE, seed, "rfcs", 7);
-		}
-
-		/**
-		 * Tests project output.
-		 *
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Test
-		@Order(3)
-		public void testRfcCounts() throws MalformedURLException {
-			String seed = "input/rfcs/";
-			testCounts(REMOTE, seed, 7);
-		}
-
-		/**
-		 * Tests project output.
-		 *
-		 * @param seed the seed URL
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Order(6)
-		@ParameterizedTest
-		@ValueSource(strings = {
-				"input/guten/index.html",
-				"input/guten/1228-h/1228-h.htm",
-				"input/guten/1322-h/1322-h.htm",
-				"input/guten/1400-h/1400-h.htm",
-				"input/guten/1661-h/1661-h.htm",
-				"input/guten/22577-h/22577-h.htm",
-				"input/guten/2701-h/2701-h.htm",
-				"input/guten/37134-h/37134-h.htm",
-				"input/guten/50468-h/50468-h.htm"
-		})
-		public void testGutenFiles(String seed) throws MalformedURLException {
-			testIndex(REMOTE, seed, "guten", 1);
-		}
-
-		/**
-		 * Tests project output.
-		 *
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Test
-		@Order(7)
-		public void testGutenIndex() throws MalformedURLException {
-			String seed = "input/guten/";
-			testIndex(REMOTE, seed, "guten", 7);
-		}
-
-		/**
-		 * Tests project output.
-		 *
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Test
-		@Order(4)
-		public void testGutenCounts() throws MalformedURLException {
-			String seed = "input/guten/";
-			testCounts(REMOTE, seed, 7);
+		public static Stream<String> getFiles() {
+			return Stream.of(
+					"index.html",
+					"falcon.html",
+					"yellowthroat.html"
+			);
 		}
 	}
 
@@ -227,50 +173,96 @@ public class Project4Test extends ProjectTests {
 	 */
 	@Nested
 	@TestMethodOrder(OrderAnnotation.class)
-	public class C_JavaTests {
-		/**
-		 * Tests project output.
-		 *
-		 * @param seed the seed URL
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Order(8)
+	public class C_RfcTests extends A_SimpleTests {
+		@Override
+		@BeforeEach
+		public void setup() {
+			baseUrl = REMOTE;
+			baseResource = "input/rfcs/";
+			baseSubdir = "rfcs";
+			baseQuery = "letters.txt";
+			baseLimit = 7;
+		}
+
+		public static Stream<String> getFiles() {
+			return Stream.of(
+				"index.html",
+				"rfc3629.html",
+				"rfc475.html",
+				"rfc5646.html",
+				"rfc6797.html",
+				"rfc6805.html",
+				"rfc6838.html",
+				"rfc7231.html"
+			);
+		}
+	}
+
+	/**
+	 * Tests the output of this project.
+	 */
+	@Nested
+	@TestMethodOrder(OrderAnnotation.class)
+	public class D_GutenTests extends A_SimpleTests {
+		@Override
+		@BeforeEach
+		public void setup() {
+			baseUrl = REMOTE;
+			baseResource = "input/guten/";
+			baseSubdir = "guten";
+			baseQuery = "complex.txt";
+			baseLimit = 7;
+		}
+
+		public static Stream<String> getFiles() {
+			return Stream.of(
+				"index.html",
+				"1228-h/1228-h.htm",
+				"1322-h/1322-h.htm",
+				"1400-h/1400-h.htm",
+				"1661-h/1661-h.htm",
+				"22577-h/22577-h.htm",
+				"2701-h/2701-h.htm",
+				"37134-h/37134-h.htm",
+				"50468-h/50468-h.htm"
+			);
+		}
+	}
+
+	/**
+	 * Tests the output of this project.
+	 */
+	@Nested
+	@TestMethodOrder(OrderAnnotation.class)
+	public class E_JavaTests extends A_SimpleTests {
+		@Override
+		@BeforeEach
+		public void setup() {
+			baseUrl = REMOTE;
+			baseResource = "docs/api/allclasses-index.html";
+			baseSubdir = "java";
+			baseQuery = "letters.txt";
+			baseLimit = 50;
+		}
+
+		public static Stream<String> getFiles() {
+			return Stream.of(
+				"java.base/java/util/AbstractCollection.html",
+				"java.compiler/javax/lang/model/SourceVersion.html",
+				"java.desktop/java/awt/desktop/AboutHandler.html",
+				"java.prefs/java/util/prefs/AbstractPreferences.html",
+				"overview-tree.html",
+				"allclasses-index.html"
+			);
+		}
+
+		@Override
+		@Order(1)
 		@ParameterizedTest
-		@ValueSource(strings = {
-				"docs/api/java.base/java/util/AbstractCollection.html",
-				"docs/api/java.compiler/javax/lang/model/SourceVersion.html",
-				"docs/api/java.desktop/java/awt/desktop/AboutHandler.html",
-				"docs/api/java.prefs/java/util/prefs/AbstractPreferences.html",
-				"docs/api/overview-tree.html",
-				"docs/api/allclasses-index.html"
-		})
-		public void testJavaFiles(String seed) throws MalformedURLException {
-			testIndex(REMOTE, seed, "java", 1);
-		}
-
-		/**
-		 * Tests project output.
-		 *
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Test
-		@Order(9)
-		@Tag("test4")
-		public void testJavaIndex() throws MalformedURLException {
-			String seed = "docs/api/allclasses-index.html";
-			testIndex(REMOTE, seed, "java", 50);
-		}
-
-		/**
-		 * Tests project output.
-		 *
-		 * @throws MalformedURLException if unable to create seed URL
-		 */
-		@Test
-		@Order(5)
-		public void testJavaCounts() throws MalformedURLException {
-			String seed = "docs/api/allclasses-index.html";
-			testCounts(REMOTE, seed, 50);
+		@MethodSource("getFiles")
+		public void testCrawlFiles(String file) throws MalformedURLException {
+			baseResource = "docs/api/"; // reset for file cases
+			super.testCrawlFiles(file);
 		}
 	}
 
@@ -303,7 +295,7 @@ public class Project4Test extends ProjectTests {
 		Path actualPath = ACTUAL_PATH.resolve(actualName);
 
 		String expectedName = String.format("index-%s.json", name);
-		Path expectedPath = EXPECTED_CRAWL.resolve("index-" + subdir).resolve(expectedName);
+		Path expectedPath = EXPECTED_CRAWL.resolve(subdir).resolve(expectedName);
 
 		URL base = new URL(absolute);
 		URL url = new URL(base, relative);
@@ -325,18 +317,18 @@ public class Project4Test extends ProjectTests {
 	 *
 	 * @param absolute the base URL in absolute form
 	 * @param relative the URL to fetch from the base in relative form
+	 * @param subdir the directory for expected files
 	 * @param limit the crawl limit to use
 	 * @throws MalformedURLException if unable to create seed URL
 	 */
-	public static void testCounts(String absolute, String relative, int limit) throws MalformedURLException {
+	public static void testCounts(String absolute, String relative, String subdir,
+			int limit) throws MalformedURLException {
 		String name = getTestName(relative);
 		name = limit > 1 ? name + "-" + limit : name;
 
-		String actualName = String.format("counts-%s.json", name);
-		Path actualPath = ACTUAL_PATH.resolve(actualName);
-
-		String expectedName = String.format("counts-%s.json", name);
-		Path expectedPath = EXPECTED_CRAWL.resolve("counts").resolve(expectedName);
+		String file = String.format("counts-%s.json", name);
+		Path actual = ACTUAL_PATH.resolve(file);
+		Path expected = EXPECTED_CRAWL.resolve(subdir).resolve(file);
 
 		URL base = new URL(absolute);
 		URL url = new URL(base, relative);
@@ -345,11 +337,11 @@ public class Project4Test extends ProjectTests {
 				HTML_FLAG, url.toString(),
 				MAX_FLAG, Integer.toString(limit),
 				THREADS_FLAG, Integer.toString(THREADS_DEFAULT),
-				COUNTS_FLAG, actualPath.normalize().toString()
+				COUNTS_FLAG, actual.normalize().toString()
 		};
 
 		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
-			ProjectTests.checkOutput(args, actualPath, expectedPath);
+			ProjectTests.checkOutput(args, actual, expected);
 		});
 	}
 
@@ -358,21 +350,20 @@ public class Project4Test extends ProjectTests {
 	 *
 	 * @param absolute the base URL in absolute form
 	 * @param relative the URL to fetch from the base in relative form
+	 * @param subdir the directory for expected files
 	 * @param limit the crawl limit to use
 	 * @param exact whether it is an exact search
 	 * @param query the query file to use
 	 * @throws MalformedURLException if unable to create seed URL
 	 */
-	public static void testSearch(String absolute, String relative, int limit,
-			boolean exact, String query) throws MalformedURLException {
+	public static void testSearch(String absolute, String relative, String subdir,
+			int limit, boolean exact, String query) throws MalformedURLException {
 		String type = exact ? "exact" : "partial";
 		String name = getTestName(relative) + "-" + query.split("[.]")[0];
 
-		String actualName = String.format("results-%s-%s.json", type, name);
-		Path actualPath = ACTUAL_PATH.resolve(actualName);
-
-		String expectedName = String.format("results-%s.json", name);
-		Path expectedPath = EXPECTED_CRAWL.resolve("search-" + type).resolve(expectedName);
+		String file = String.format("results-%s-%s.json", type, name);
+		Path actual = ACTUAL_PATH.resolve(file);
+		Path expected = EXPECTED_CRAWL.resolve(subdir).resolve(file);
 
 		URL base = new URL(absolute);
 		URL url = new URL(base, relative);
@@ -382,11 +373,11 @@ public class Project4Test extends ProjectTests {
 				MAX_FLAG, Integer.toString(limit),
 				THREADS_FLAG, Integer.toString(THREADS_DEFAULT),
 				QUERY_FLAG, QUERY_PATH.resolve(query).toString(),
-				RESULTS_FLAG, actualPath.normalize().toString()
+				RESULTS_FLAG, actual.normalize().toString()
 		};
 
 		Assertions.assertTimeoutPreemptively(LONG_TIMEOUT, () -> {
-			ProjectTests.checkOutput(args, actualPath, expectedPath);
+			ProjectTests.checkOutput(args, actual, expected);
 		});
 	}
 
