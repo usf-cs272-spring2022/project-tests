@@ -169,7 +169,10 @@ public class Project4Test extends ProjectTests {
 			baseLimit = 50;
 		}
 
-		/** The individual web pages to test. */
+		/**
+		 * The individual web pages to test.
+		 * @return a stream of web pages to test
+		 */
 		public static Stream<String> getFiles() {
 			return Stream.of(
 					"index.html",
@@ -195,7 +198,10 @@ public class Project4Test extends ProjectTests {
 			baseLimit = 7;
 		}
 
-		/** The individual web pages to test. */
+		/**
+		 * The individual web pages to test.
+		 * @return a stream of web pages to test
+		 */
 		public static Stream<String> getFiles() {
 			return Stream.of(
 				"index.html",
@@ -226,7 +232,10 @@ public class Project4Test extends ProjectTests {
 			baseLimit = 7;
 		}
 
-		/** The individual web pages to test. */
+		/**
+		 * The individual web pages to test.
+		 * @return a stream of web pages to test
+		 */
 		public static Stream<String> getFiles() {
 			return Stream.of(
 				"index.html",
@@ -258,7 +267,10 @@ public class Project4Test extends ProjectTests {
 			baseLimit = 50;
 		}
 
-		/** The individual web pages to test. */
+		/**
+		 * The individual web pages to test.
+		 * @return a stream of web pages to test
+		 */
 		public static Stream<String> getFiles() {
 			return Stream.of(
 				"java.base/java/util/AbstractCollection.html",
