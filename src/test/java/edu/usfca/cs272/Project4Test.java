@@ -654,7 +654,7 @@ public class Project4Test extends ProjectTests {
 						String.valueOf(BENCH_THREADS) + " Workers", args2);
 
 				assertTrue(result >= 1.5, () -> String.format(
-						"%d workers has a %.2fx speedup (less than the 1.1x required) compareed to %s.",
+						"%d workers has a %.2fx speedup (less than the 1.5x required) compareed to %s.",
 						BENCH_THREADS, result, "1 worker"));
 			});
 		}
